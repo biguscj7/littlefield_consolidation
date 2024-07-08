@@ -1,4 +1,5 @@
 import io
+from datetime import datetime as dt
 
 import streamlit as st
 import pandas as pd
@@ -40,7 +41,7 @@ if uploaded_files:
 
 
 
-    st.download_button("Download", outfile, file_name="output.xlsx",
+    st.download_button("Download", outfile, file_name=f"Littlefield_{dt.now().strftime('%Y%m%d_%H%M')}.xlsx",
                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 st.markdown("### Usage\n"

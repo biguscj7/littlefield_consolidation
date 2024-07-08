@@ -45,5 +45,13 @@ if uploaded_files:
                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 st.markdown("### Usage\n"
+            "- Download desired files from the Littlefield simulation (do not change file names).\n"
             "- Drag and drop the files you want to consolidate into the box above.\n"
             "- Click the download button to download the consolidated file.\n")
+
+st.markdown("### Caveats\n"
+            "- This only currently handles the filenames as assigned by the Littlefield site.\n"
+            "- If you upload a file twice, the second file will likely overwrite the first.\n")
+
+st.markdown("### Help / issues\n"
+            "- Contact Mark")

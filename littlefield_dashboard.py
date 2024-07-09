@@ -1,8 +1,10 @@
 import io
 from datetime import datetime as dt
+from functools import reduce
 
 import streamlit as st
 import pandas as pd
+from plotly import express as px
 
 files_dict = {
     'Plot of utilization of station 1, averaged over each day': 'Station 1 Utilization',
@@ -33,11 +35,22 @@ uploaded_files = st.file_uploader("Upload files", type=['xlsx'], accept_multiple
 outfile = io.BytesIO()
 
 if uploaded_files:
+    utilization_data = []
+
     with pd.ExcelWriter(outfile) as writer:
         for file in uploaded_files:
-            df = pd.read_excel(file)
+            df = pd.read_excel(file, index_col=0)
             short_name = file_rename(file.name)
-            df.to_excel(writer, sheet_name=short_name, index=False)
+            if "Utilization" in short_name:
+                df.columns = [short_name]
+                utilization_data.append(df)
+            df.to_excel(writer, sheet_name=short_name)
+
+    if utilization_data:
+        utilization_df = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True), utilization_data)
+        st.dataframe(utilization_df)
+        fig = px.line(utilization_df, x=utilization_df.index, y=utilization_df.columns)
+        st.plotly_chart(fig)
 
 
 

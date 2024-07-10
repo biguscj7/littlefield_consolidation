@@ -2,6 +2,7 @@ import io
 from datetime import datetime as dt
 from functools import reduce
 
+import plotly.graph_objs
 import streamlit as st
 import pandas as pd
 from plotly import express as px
@@ -21,12 +22,20 @@ files_dict = {
     'Plot of daily average job lead time': 'Daily Avg Job Lead Time',
 }
 
+
 def file_rename(file_name: str) -> str:
     for file_start, short_name in files_dict.items():
         if file_name.startswith(file_start):
             return short_name
 
-st.set_page_config(layout="centered", page_title="Littlefield Consolidator", page_icon=":bar_chart:")
+
+def merge_data_and_plot(data: list, title: str = None) -> plotly.graph_objs.Figure:
+    merge_df = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True),
+                      data)
+    return px.line(merge_df, x=merge_df.index, y=merge_df.columns, title=title)
+
+
+st.set_page_config(layout="wide", page_title="Littlefield Consolidator", page_icon=":bar_chart:")
 
 st.title('Littlefield Consolidator')
 
@@ -36,26 +45,71 @@ outfile = io.BytesIO()
 
 if uploaded_files:
     utilization_data = []
+    queue_data = []
+    accepted_kits = None
+    inventory_level = None
+    daily_completed_jobs = None
+    daily_avg_lead_time = None
 
     with pd.ExcelWriter(outfile) as writer:
         for file in uploaded_files:
             df = pd.read_excel(file, index_col=0)
             short_name = file_rename(file.name)
+            df.to_excel(writer, sheet_name=short_name)
             if "Utilization" in short_name:
                 df.columns = [short_name]
                 utilization_data.append(df)
-            df.to_excel(writer, sheet_name=short_name)
-
-    if utilization_data:
-        utilization_df = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True), utilization_data)
-        st.dataframe(utilization_df)
-        fig = px.line(utilization_df, x=utilization_df.index, y=utilization_df.columns)
-        st.plotly_chart(fig)
-
-
+            if "Queue" in short_name:
+                df.columns = [short_name]
+                queue_data.append(df)
+            if "accepted" in short_name:
+                df.columns = [short_name]
+                accepted_kits = df
+            if "Inventory" in short_name:
+                df.columns = [short_name]
+                inventory_level = df
+            if "Completed" in short_name:
+                df.columns = ["Seven day", "One day", "Half day"]
+                daily_completed_jobs = df
+            if "Lead Time" in short_name:
+                df.columns = ["Seven day", "One day", "Half day"]
+                daily_avg_lead_time = df
 
     st.download_button("Download", outfile, file_name=f"Littlefield_{dt.now().strftime('%Y%m%d_%H%M')}.xlsx",
                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+    left_column, right_column = st.columns(2)
+
+    if type(accepted_kits) == pd.DataFrame:
+        accepted_kits_fig = px.line(accepted_kits, x=accepted_kits.index, y=accepted_kits.columns,
+                                    title="Accepted kits")
+        left_column.plotly_chart(accepted_kits_fig)
+        # left_column.markdown(
+        #    f"#### Daily kits\nAverage: {accepted_kits.mean()["Daily accepted kits"]: .2f} / Std dev: {accepted_kits.std(ddof=0)["Daily accepted kits"]: .2f}\n")
+
+    if type(inventory_level) == pd.DataFrame:
+        inventory_level_fig = px.line(inventory_level, x=inventory_level.index, y=inventory_level.columns,
+                                      title="Inventory Level")
+        right_column.plotly_chart(inventory_level_fig)
+
+    if queue_data:
+        queue_plot = merge_data_and_plot(queue_data, title="Consolidated Queue Data")
+        left_column.plotly_chart(queue_plot)
+
+    if utilization_data:
+        utilization_plot = merge_data_and_plot(utilization_data, title="Consolidated Utilization")
+        right_column.plotly_chart(utilization_plot)
+
+    if type(daily_completed_jobs) == pd.DataFrame:
+        completed_jobs_fig = px.line(daily_completed_jobs, x=daily_completed_jobs.index, y=daily_completed_jobs.columns,
+                                    title="Completed Jobs")
+        left_column.plotly_chart(completed_jobs_fig)
+
+    if type(daily_avg_lead_time) == pd.DataFrame:
+        lead_time_fig = px.line(daily_avg_lead_time, x=daily_avg_lead_time.index, y=daily_avg_lead_time.columns,
+                                    title="Average Lead Time")
+        right_column.plotly_chart(lead_time_fig)
+
 
 st.markdown("### Usage\n"
             "- Download desired files from the Littlefield simulation (do not change file names).\n"

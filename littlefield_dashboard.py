@@ -1,8 +1,3 @@
-import io
-from datetime import datetime as dt
-from functools import reduce
-
-import plotly.graph_objs
 import streamlit as st
 import pandas as pd
 from plotly import express as px
@@ -22,19 +17,6 @@ files_dict = {
     'Plot of daily average job lead time': 'Daily Avg Lead Time',
 }
 
-
-def file_rename(file_name: str) -> str:
-    for file_start, short_name in files_dict.items():
-        if file_name.startswith(file_start):
-            return short_name
-
-
-def merge_data_and_plot(data: list, title: str = None) -> plotly.graph_objs.Figure:
-    merge_df = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True),
-                      data)
-    return px.line(merge_df, x=merge_df.index, y=merge_df.columns, title=title)
-
-
 st.set_page_config(layout="wide", page_title="Littlefield Consolidator", page_icon=":bar_chart:")
 
 st.title('Littlefield Consolidator')
@@ -43,64 +25,25 @@ notes, data, background = st.tabs(["Notes", "Data", "Background"])
 
 with notes:
     st.markdown("### Usage\n"
-                "- Download desired files from the Littlefield simulation (do not change file names).\n"
-                "- Go to the 'data' tab and drag and drop the files you want or browse for them.\n"
-                "- Charts will be generated for the data you uploaded.\n"
-                "- Click the download button to download the consolidated excel file.\n")
-
-    st.markdown("### Caveats\n"
-                "- This only currently handles the filenames as assigned by the Littlefield site.\n"
-                "- If you upload a file twice, the second file will likely overwrite the first.\n")
+                "- Download consolidated data file from MS Teams.\n"
+                "- Go to the 'data' tab and drag and drop the file you want or browse for it.\n"
+                "- Charts will be generated for the data you uploaded.\n")
 
     st.markdown("### Help / issues\n"
                 "- Contact Mark")
 
 with data:
-    uploaded_files = st.file_uploader("Upload files", type=['xlsx'], accept_multiple_files=True)
+    uploaded_file = st.file_uploader("Upload files", type=['xlsx'])
 
-    outfile = io.BytesIO()
-
-    if uploaded_files:
-        dataframes = []
-
-        with pd.ExcelWriter(outfile) as writer:
-            for file in uploaded_files:
-                df = pd.read_excel(file, index_col=0)
-                short_name = file_rename(file.name)
-                match short_name:
-                    case x if "Utilization" in x:
-                        df.columns = [x]
-                        dataframes.append(df)
-                    case x if "Queue" in x:
-                        df.columns = [x]
-                        dataframes.append(df)
-                    case x if "accepted" in x:
-                        df.columns = [x]
-                        dataframes.append(df)
-                    case x if "Inventory" in x:
-                        df.columns = [x]
-                        dataframes.append(df)
-                    case x if "Completed" in x:
-                        df.columns = [f"{x} - Seven day", f"{x} - One day", f"{x} - Half day"]
-                        dataframes.append(df)
-                    case x if "Lead Time" in x:
-                        df.columns = [f"{x} - Seven day", f"{x} - One day", f"{x} - Half day"]
-                        dataframes.append(df)
-
-            all_data = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True),
-                              dataframes)
-
-            all_data.to_excel(writer, sheet_name="All Data")
-
-        st.download_button("Download", outfile, file_name=f"Littlefield_{dt.now().strftime('%Y%m%d_%H%M')}.xlsx",
-                           mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    if uploaded_file:
+        all_data = pd.read_excel(uploaded_file, index_col=0)
 
         left_column, right_column = st.columns(2)
 
         accepted_kits_fig = px.line(all_data, x=all_data.index, y=["Daily accepted kits"],
                                     title="Accepted kits")
         left_column.plotly_chart(accepted_kits_fig)
-        #left_column.markdown(
+        # left_column.markdown(
         #    f"#### Daily kits\nAverage: {all_data.mean()["Daily accepted kits"]: .2f} / Std dev: {all_data.std(ddof=0)["Daily accepted kits"]: .2f}\n")
 
         inventory_level_fig = px.line(all_data, x=all_data.index, y=["Kit Inventory Level"],

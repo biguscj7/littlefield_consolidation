@@ -132,12 +132,12 @@ with data:
 
 with background:
     st.markdown("### Machine costs\n"
-                "- Station 1: \$90,000\n"
-                "- Station 2: \$80,000\n"
-                "- Station 3: \$100,000")
+                "- Station 1: $90,000\n"
+                "- Station 2: $80,000\n"
+                "- Station 3: $100,000")
     st.markdown("### Order details\n"
                 "- Lead time: 4 days\n"
-                "- Fixed order cost: \$1000/order\n"
+                "- Fixed order cost: $1000/order\n"
                 "- Order step:\n"
-                "   - batches of 60 kits @ \$10/kit\n"
-                "   - i.e. \$600 step\n")
+                "   - batches of 60 kits @ $10/kit\n"
+                "   - i.e. $600 step\n")

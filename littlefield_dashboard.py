@@ -19,7 +19,7 @@ files_dict = {
     'Plot of inventory level in kits (not an average)': 'Kit Inventory Level',
     'Plot of daily average revenue per job': 'Avg Revenue per Job',
     'Plot of number of completed jobs each day': 'Daily Completed Jobs',
-    'Plot of daily average job lead time': 'Daily Avg Job Lead Time',
+    'Plot of daily average job lead time': 'Daily Avg Lead Time',
 }
 
 
@@ -61,72 +61,72 @@ with data:
     outfile = io.BytesIO()
 
     if uploaded_files:
-        utilization_data = []
-        queue_data = []
-        accepted_kits = None
-        inventory_level = None
-        daily_completed_jobs = None
-        daily_avg_lead_time = None
+        dataframes = []
 
         with pd.ExcelWriter(outfile) as writer:
             for file in uploaded_files:
                 df = pd.read_excel(file, index_col=0)
                 short_name = file_rename(file.name)
-                df.to_excel(writer, sheet_name=short_name)
-                if "Utilization" in short_name:
-                    df.columns = [short_name]
-                    utilization_data.append(df)
-                if "Queue" in short_name:
-                    df.columns = [short_name]
-                    queue_data.append(df)
-                if "accepted" in short_name:
-                    df.columns = [short_name]
-                    accepted_kits = df
-                if "Inventory" in short_name:
-                    df.columns = [short_name]
-                    inventory_level = df
-                if "Completed" in short_name:
-                    df.columns = ["Seven day", "One day", "Half day"]
-                    daily_completed_jobs = df
-                if "Lead Time" in short_name:
-                    df.columns = ["Seven day", "One day", "Half day"]
-                    daily_avg_lead_time = df
+                match short_name:
+                    case x if "Utilization" in x:
+                        df.columns = [x]
+                        dataframes.append(df)
+                    case x if "Queue" in x:
+                        df.columns = [x]
+                        dataframes.append(df)
+                    case x if "accepted" in x:
+                        df.columns = [x]
+                        dataframes.append(df)
+                    case x if "Inventory" in x:
+                        df.columns = [x]
+                        dataframes.append(df)
+                    case x if "Completed" in x:
+                        df.columns = [f"{x} - Seven day", f"{x} - One day", f"{x} - Half day"]
+                        dataframes.append(df)
+                    case x if "Lead Time" in x:
+                        df.columns = [f"{x} - Seven day", f"{x} - One day", f"{x} - Half day"]
+                        dataframes.append(df)
+
+            all_data = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True),
+                              dataframes)
+
+            all_data.to_excel(writer, sheet_name="All Data")
 
         st.download_button("Download", outfile, file_name=f"Littlefield_{dt.now().strftime('%Y%m%d_%H%M')}.xlsx",
                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
         left_column, right_column = st.columns(2)
 
-        if type(accepted_kits) == pd.DataFrame:
-            accepted_kits_fig = px.line(accepted_kits, x=accepted_kits.index, y=accepted_kits.columns,
-                                        title="Accepted kits")
-            left_column.plotly_chart(accepted_kits_fig)
-            left_column.markdown(
-                f"#### Daily kits\nAverage: {accepted_kits.mean()["Daily accepted kits"]: .2f} / Std dev: {accepted_kits.std(ddof=0)["Daily accepted kits"]: .2f}\n")
+        accepted_kits_fig = px.line(all_data, x=all_data.index, y=["Daily accepted kits"],
+                                    title="Accepted kits")
+        left_column.plotly_chart(accepted_kits_fig)
+        #left_column.markdown(
+        #    f"#### Daily kits\nAverage: {all_data.mean()["Daily accepted kits"]: .2f} / Std dev: {all_data.std(ddof=0)["Daily accepted kits"]: .2f}\n")
 
-        if type(inventory_level) == pd.DataFrame:
-            inventory_level_fig = px.line(inventory_level, x=inventory_level.index, y=inventory_level.columns,
-                                          title="Inventory Level")
-            right_column.plotly_chart(inventory_level_fig)
+        inventory_level_fig = px.line(all_data, x=all_data.index, y=["Kit Inventory Level"],
+                                      title="Inventory Level")
+        right_column.plotly_chart(inventory_level_fig)
 
-        if queue_data:
-            queue_plot = merge_data_and_plot(queue_data, title="Consolidated Queue Data")
-            left_column.plotly_chart(queue_plot)
+        queue_plot = px.line(all_data, x=all_data.index, y=["Station 1 Queue", "Station 2 Queue", "Station 3 Queue"],
+                             title="Consolidated Queue Data")
+        left_column.plotly_chart(queue_plot)
 
-        if utilization_data:
-            utilization_plot = merge_data_and_plot(utilization_data, title="Consolidated Utilization")
-            right_column.plotly_chart(utilization_plot)
+        utilization_plot = px.line(all_data, x=all_data.index,
+                                   y=['Station 1 Utilization', 'Station 2 Utilization', 'Station 3 Utilization'],
+                                   title="Consolidated Utilization")
+        right_column.plotly_chart(utilization_plot)
 
-        if type(daily_completed_jobs) == pd.DataFrame:
-            completed_jobs_fig = px.line(daily_completed_jobs, x=daily_completed_jobs.index,
-                                         y=daily_completed_jobs.columns,
-                                         title="Completed Jobs")
-            left_column.plotly_chart(completed_jobs_fig)
+        completed_jobs_fig = px.line(all_data, x=all_data.index,
+                                     y=['Daily Completed Jobs - Seven day', 'Daily Completed Jobs - One day',
+                                        'Daily Completed Jobs - Half day'],
+                                     title="Completed Jobs")
+        left_column.plotly_chart(completed_jobs_fig)
 
-        if type(daily_avg_lead_time) == pd.DataFrame:
-            lead_time_fig = px.line(daily_avg_lead_time, x=daily_avg_lead_time.index, y=daily_avg_lead_time.columns,
-                                    title="Average Lead Time")
-            right_column.plotly_chart(lead_time_fig)
+        lead_time_fig = px.line(all_data, x=all_data.index,
+                                y=['Daily Avg Lead Time - Seven day', 'Daily Avg Lead Time - One day',
+                                   'Daily Avg Lead Time - Half day'],
+                                title="Average Lead Time")
+        right_column.plotly_chart(lead_time_fig)
 
 with background:
     st.markdown("### Machine costs\n"

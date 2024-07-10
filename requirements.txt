@@ -1,3 +1,7 @@
-rich
-streamlit
+rich~=13.7.1
+streamlit~=1.36.0
 openpyxl
+selenium~=4.22.0
+pandas~=2.2.2
+plotly~=5.22.0
+python-dotenv~=1.0.1

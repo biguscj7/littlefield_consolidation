@@ -55,8 +55,6 @@ with notes:
     st.markdown("### Help / issues\n"
                 "- Contact Mark")
 
-
-
 with data:
     uploaded_files = st.file_uploader("Upload files", type=['xlsx'], accept_multiple_files=True)
 
@@ -103,8 +101,8 @@ with data:
             accepted_kits_fig = px.line(accepted_kits, x=accepted_kits.index, y=accepted_kits.columns,
                                         title="Accepted kits")
             left_column.plotly_chart(accepted_kits_fig)
-            # left_column.markdown(
-            #    f"#### Daily kits\nAverage: {accepted_kits.mean()["Daily accepted kits"]: .2f} / Std dev: {accepted_kits.std(ddof=0)["Daily accepted kits"]: .2f}\n")
+            left_column.markdown(
+                f"#### Daily kits\nAverage: {accepted_kits.mean()["Daily accepted kits"]: .2f} / Std dev: {accepted_kits.std(ddof=0)["Daily accepted kits"]: .2f}\n")
 
         if type(inventory_level) == pd.DataFrame:
             inventory_level_fig = px.line(inventory_level, x=inventory_level.index, y=inventory_level.columns,
@@ -120,15 +118,15 @@ with data:
             right_column.plotly_chart(utilization_plot)
 
         if type(daily_completed_jobs) == pd.DataFrame:
-            completed_jobs_fig = px.line(daily_completed_jobs, x=daily_completed_jobs.index, y=daily_completed_jobs.columns,
-                                        title="Completed Jobs")
+            completed_jobs_fig = px.line(daily_completed_jobs, x=daily_completed_jobs.index,
+                                         y=daily_completed_jobs.columns,
+                                         title="Completed Jobs")
             left_column.plotly_chart(completed_jobs_fig)
 
         if type(daily_avg_lead_time) == pd.DataFrame:
             lead_time_fig = px.line(daily_avg_lead_time, x=daily_avg_lead_time.index, y=daily_avg_lead_time.columns,
-                                        title="Average Lead Time")
+                                    title="Average Lead Time")
             right_column.plotly_chart(lead_time_fig)
-
 
 with background:
     st.markdown("### Machine costs\n"

@@ -67,6 +67,12 @@ with data:
                                    range_x=day_range)
         left_column.plotly_chart(cash_on_hand_fig)
 
+        st.dataframe(
+            all_data.loc[start_day:end_day,
+            ["Daily accepted kits", "Daily Completed Jobs - Seven day", "Daily Completed Jobs - One day", "Daily Completed Jobs - Half day"]].describe())
+
+        st.markdown("*Stats based on day range selected*")
+
 with background:
     st.markdown("### Machine costs\n"
                 "- Station 1: $90,000\n"

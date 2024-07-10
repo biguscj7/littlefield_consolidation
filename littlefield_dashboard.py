@@ -17,9 +17,9 @@ files_dict = {
     'Plot of daily average job lead time': 'Daily Avg Lead Time',
 }
 
-st.set_page_config(layout="wide", page_title="Littlefield Consolidator", page_icon=":bar_chart:")
+st.set_page_config(layout="wide", page_title="Littlefield Dashboard", page_icon=":bar_chart:")
 
-st.title('Littlefield Consolidator')
+st.title('Littlefield Dashboard')
 
 notes, data, background = st.tabs(["Notes", "Data", "Background"])
 

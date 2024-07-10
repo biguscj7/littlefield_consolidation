@@ -2,21 +2,6 @@ import streamlit as st
 import pandas as pd
 from plotly import express as px
 
-files_dict = {
-    'Plot of utilization of station 1, averaged over each day': 'Station 1 Utilization',
-    'Plot of utilization of station 2, averaged over each day': 'Station 2 Utilization',
-    'Plot of utilization of station 3, averaged over each day': 'Station 3 Utilization',
-    'Plot of daily average number of kits queued for station 1': 'Station 1 Queue',
-    'Plot of daily average number of kits queued for station 2': 'Station 2 Queue',
-    'Plot of daily average number of kits queued for station 3': 'Station 3 Queue',
-    'Plot of number of jobs accepted each day': 'Daily accepted kits',
-    'Plot of daily average number of jobs waiting for kits': 'Jobs Waiting Kits',
-    'Plot of inventory level in kits (not an average)': 'Kit Inventory Level',
-    'Plot of daily average revenue per job': 'Avg Revenue per Job',
-    'Plot of number of completed jobs each day': 'Daily Completed Jobs',
-    'Plot of daily average job lead time': 'Daily Avg Lead Time',
-}
-
 st.set_page_config(layout="wide", page_title="Littlefield Dashboard", page_icon=":bar_chart:")
 
 st.title('Littlefield Dashboard')
@@ -40,36 +25,47 @@ with data:
 
         left_column, right_column = st.columns(2)
 
+        start_day = left_column.number_input("Start day", min_value=all_data.index[0], max_value=all_data.index[-1],
+                                             value=all_data.index[0])
+        end_day = right_column.number_input("End day", min_value=all_data.index[0], max_value=all_data.index[-1],
+                                            value=all_data.index[-1])
+
+        day_range = [start_day, end_day]
+
         accepted_kits_fig = px.line(all_data, x=all_data.index, y=["Daily accepted kits"],
-                                    title="Accepted kits")
+                                    title="Accepted kits", range_x=day_range)
         left_column.plotly_chart(accepted_kits_fig)
         # left_column.markdown(
         #    f"#### Daily kits\nAverage: {all_data.mean()["Daily accepted kits"]: .2f} / Std dev: {all_data.std(ddof=0)["Daily accepted kits"]: .2f}\n")
 
         inventory_level_fig = px.line(all_data, x=all_data.index, y=["Kit Inventory Level"],
-                                      title="Inventory Level")
+                                      title="Inventory Level", range_x=day_range)
         right_column.plotly_chart(inventory_level_fig)
 
         queue_plot = px.line(all_data, x=all_data.index, y=["Station 1 Queue", "Station 2 Queue", "Station 3 Queue"],
-                             title="Consolidated Queue Data")
+                             title="Consolidated Queue Data", range_x=day_range)
         left_column.plotly_chart(queue_plot)
 
         utilization_plot = px.line(all_data, x=all_data.index,
                                    y=['Station 1 Utilization', 'Station 2 Utilization', 'Station 3 Utilization'],
-                                   title="Consolidated Utilization")
+                                   title="Consolidated Utilization", range_x=day_range)
         right_column.plotly_chart(utilization_plot)
 
         completed_jobs_fig = px.line(all_data, x=all_data.index,
                                      y=['Daily Completed Jobs - Seven day', 'Daily Completed Jobs - One day',
                                         'Daily Completed Jobs - Half day'],
-                                     title="Completed Jobs")
+                                     title="Completed Jobs", range_x=day_range)
         left_column.plotly_chart(completed_jobs_fig)
 
         lead_time_fig = px.line(all_data, x=all_data.index,
                                 y=['Daily Avg Lead Time - Seven day', 'Daily Avg Lead Time - One day',
                                    'Daily Avg Lead Time - Half day'],
-                                title="Average Lead Time")
+                                title="Average Lead Time", range_x=day_range)
         right_column.plotly_chart(lead_time_fig)
+
+        cash_on_hand_fig = px.line(all_data, x=all_data.index, y=["Cash on Hand"], title="Cash on Hand",
+                                   range_x=day_range)
+        left_column.plotly_chart(cash_on_hand_fig)
 
 with background:
     st.markdown("### Machine costs\n"

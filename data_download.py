@@ -28,6 +28,7 @@ url_list = ["https://op.responsive.net/Littlefield/Plot?data=JOBIN&x=all",  # jo
             "https://op.responsive.net/Littlefield/Plot?data=JOBOUT&x=all",  # completed job count
             "https://op.responsive.net/Littlefield/Plot?data=JOBT&x=all",  # job lead times
             "https://op.responsive.net/Littlefield/Plot?data=JOBREV&x=all",  # revenues
+            "https://op.responsive.net/Littlefield/Plot?data=CASH&x=all&team=teamdevils", # cash on hand
             ]
 
 files_dict = {
@@ -43,6 +44,7 @@ files_dict = {
     'Plot of daily average revenue per job': 'Avg Revenue per Job',
     'Plot of number of completed jobs each day': 'Daily Completed Jobs',
     'Plot of daily average job lead time': 'Daily Avg Lead Time',
+    'Plot of cash on hand at the end of each day': 'Cash on Hand',
 }
 
 
@@ -95,6 +97,9 @@ for file_start, short_name in files_dict.items():
                     dataframes.append(df)
                 case x if "Lead Time" in x:
                     df.columns = [f"{x} - Seven day", f"{x} - One day", f"{x} - Half day"]
+                    dataframes.append(df)
+                case x if "Cash on Hand" == x:
+                    df.columns = [x]
                     dataframes.append(df)
 
             all_data = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True),

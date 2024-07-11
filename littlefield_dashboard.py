@@ -6,7 +6,7 @@ st.set_page_config(layout="wide", page_title="Littlefield Dashboard", page_icon=
 
 st.title('Littlefield Dashboard')
 
-notes, data, background = st.tabs(["Notes", "Data", "Background"])
+data, notes, background = st.tabs(["Data", "Notes", "Background"])
 
 with data:
     uploaded_file = st.file_uploader("Upload files", type=['xlsx'])

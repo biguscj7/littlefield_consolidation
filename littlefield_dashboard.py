@@ -8,15 +8,6 @@ st.title('Littlefield Dashboard')
 
 notes, data, background = st.tabs(["Notes", "Data", "Background"])
 
-with notes:
-    st.markdown("### Usage\n"
-                "- Download consolidated data file from MS Teams.\n"
-                "- Go to the 'data' tab and drag and drop the file you want or browse for it.\n"
-                "- Charts will be generated for the data you uploaded.\n")
-
-    st.markdown("### Help / issues\n"
-                "- Contact Mark")
-
 with data:
     uploaded_file = st.file_uploader("Upload files", type=['xlsx'])
 
@@ -77,6 +68,15 @@ with data:
              "Daily Completed Jobs - Half day"]].describe())
 
         st.markdown("*Stats based on day range selected*")
+
+with notes:
+    st.markdown("### Usage\n"
+                "- Download consolidated data file from MS Teams.\n"
+                "- Go to the 'data' tab and drag and drop the file you want or browse for it.\n"
+                "- Charts will be generated for the data you uploaded.\n")
+
+    st.markdown("### Help / issues\n"
+                "- Contact Mark")
 
 with background:
     st.markdown("### Machine costs\n"

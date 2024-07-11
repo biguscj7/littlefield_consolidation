@@ -101,6 +101,9 @@ for file_start, short_name in files_dict.items():
                 case x if "Cash on Hand" == x:
                     df.columns = [x]
                     dataframes.append(df)
+                case x if "Waiting Kits" in x:
+                    df.columns = [x]
+                    dataframes.append(df)
 
             all_data = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True),
                               dataframes)

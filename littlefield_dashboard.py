@@ -67,9 +67,14 @@ with data:
                                    range_x=day_range)
         left_column.plotly_chart(cash_on_hand_fig)
 
+        waiting_kits_fig = px.line(all_data, x=all_data.index, y=["Jobs Waiting Kits"], title="Jobs Waiting Kits",
+                                   range_x=day_range)
+        right_column.plotly_chart(waiting_kits_fig)
+
         st.dataframe(
             all_data.loc[start_day:end_day,
-            ["Daily accepted kits", "Daily Completed Jobs - Seven day", "Daily Completed Jobs - One day", "Daily Completed Jobs - Half day"]].describe())
+            ["Daily accepted kits", "Daily Completed Jobs - Seven day", "Daily Completed Jobs - One day",
+             "Daily Completed Jobs - Half day"]].describe())
 
         st.markdown("*Stats based on day range selected*")
 

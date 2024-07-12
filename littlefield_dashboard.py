@@ -13,6 +13,13 @@ with data:
 
     if uploaded_file:
         all_data = pd.read_excel(uploaded_file, index_col=0)
+        text_data = pd.read_excel(uploaded_file, sheet_name="Text Data", index_col=0)
+        transaction_data = pd.read_excel(uploaded_file, sheet_name="Transaction History")
+
+        day, balance = text_data.loc["Banner", "Value"].split("Team: teamdevils")
+
+        st.markdown(f"### {day} / {balance}")
+        st.markdown(f"### {text_data.loc["Order Status", "Value"]}")
 
         left_column, right_column = st.columns(2)
 
@@ -66,12 +73,16 @@ with data:
                                    range_x=day_range)
         left_column.plotly_chart(avg_rev_per_job_fig)
 
-        st.dataframe(
+        right_column.markdown("**Transaction history**")
+        right_column.dataframe(transaction_data, hide_index=True, use_container_width=True)
+
+        left_column.markdown("**Stats**")
+        left_column.dataframe(
             all_data.loc[start_day:end_day,
             ["Daily accepted kits", "Daily Completed Jobs - Seven day", "Daily Completed Jobs - One day",
              "Daily Completed Jobs - Half day"]].describe())
 
-        st.markdown("*Stats based on day range selected*")
+        left_column.markdown("*Stats based on day range selected*")
 
 with notes:
     st.markdown("### Usage\n"

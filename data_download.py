@@ -16,20 +16,20 @@ load_dotenv()
 
 download_dir = Path("~/Downloads").expanduser()
 
-url_list = ["https://op.responsive.net/Littlefield/Plot?data=JOBIN&x=all",  # job arrivals
-            "https://op.responsive.net/Littlefield/Plot?data=JOBQ&x=all",  # waiting for kits
-            "https://op.responsive.net/Littlefield/Plot?data=INV&x=all",  # inventory
-            "https://op.responsive.net/Littlefield/Plot?data=S1Q&x=all",  # station 1 queue
-            "https://op.responsive.net/Littlefield/Plot?data=S1UTIL&x=all",  # station 1 utilization
-            "https://op.responsive.net/Littlefield/Plot?data=S2Q&x=all",  # station 2 queue
-            "https://op.responsive.net/Littlefield/Plot?data=S2UTIL&x=all",  # station 2 utilization
-            "https://op.responsive.net/Littlefield/Plot?data=S3Q&x=all",  # station 3 queue
-            "https://op.responsive.net/Littlefield/Plot?data=S3UTIL&x=all",  # station 3 utilization
-            "https://op.responsive.net/Littlefield/Plot?data=JOBOUT&x=all",  # completed job count
-            "https://op.responsive.net/Littlefield/Plot?data=JOBT&x=all",  # job lead times
-            "https://op.responsive.net/Littlefield/Plot?data=JOBREV&x=all",  # revenues
-            "https://op.responsive.net/Littlefield/Plot?data=CASH&x=all&team=teamdevils", # cash on hand
-            ]
+download_urls = ["https://op.responsive.net/Littlefield/Plot?data=JOBIN&x=all",  # job arrivals
+                 "https://op.responsive.net/Littlefield/Plot?data=JOBQ&x=all",  # waiting for kits
+                 "https://op.responsive.net/Littlefield/Plot?data=INV&x=all",  # inventory
+                 "https://op.responsive.net/Littlefield/Plot?data=S1Q&x=all",  # station 1 queue
+                 "https://op.responsive.net/Littlefield/Plot?data=S1UTIL&x=all",  # station 1 utilization
+                 "https://op.responsive.net/Littlefield/Plot?data=S2Q&x=all",  # station 2 queue
+                 "https://op.responsive.net/Littlefield/Plot?data=S2UTIL&x=all",  # station 2 utilization
+                 "https://op.responsive.net/Littlefield/Plot?data=S3Q&x=all",  # station 3 queue
+                 "https://op.responsive.net/Littlefield/Plot?data=S3UTIL&x=all",  # station 3 utilization
+                 "https://op.responsive.net/Littlefield/Plot?data=JOBOUT&x=all",  # completed job count
+                 "https://op.responsive.net/Littlefield/Plot?data=JOBT&x=all",  # job lead times
+                 "https://op.responsive.net/Littlefield/Plot?data=JOBREV&x=all",  # revenues
+                 "https://op.responsive.net/Littlefield/Plot?data=CASH&x=all&team=teamdevils",  # cash on hand
+                 ]
 
 files_dict = {
     'Plot of utilization of station 1, averaged over each day': 'Station 1 Utilization',
@@ -65,7 +65,19 @@ pw_elem.clear()
 pw_elem.send_keys(os.getenv("LITTLEFIELD_PASSWORD"))
 pw_elem.send_keys(Keys.RETURN)
 
-for url in url_list:
+# download transaction history
+time.sleep(3)
+banner = driver.find_element(By.XPATH, '//*[@id="Ltstatus"]/font/center/div[1]').text
+driver.find_element(By.XPATH, '//*[@id="button"]/map/area[2]').click() # history
+time.sleep(3)
+driver.find_element(By.XPATH, '//*[@id="historyDialog"]/div[1]/i[2]').click() # download history
+time.sleep(0.5)
+
+# /html/body/p[2]/b
+driver.get("https://op.responsive.net/Littlefield/MaterialMenu")
+order_status = driver.find_element(By.XPATH, '/html/body/p[2]/b').text
+
+for url in download_urls:
     driver.get(url)  # inventory
     download_element = driver.find_element(By.CLASS_NAME, 'download')
     download_element.click()
@@ -105,14 +117,23 @@ for file_start, short_name in files_dict.items():
                     df.columns = [x]
                     dataframes.append(df)
                 case x if "Revenue" in x:
-                    df.columns = ["Avg Rev per Job  - Seven day", "Avg Rev per Job  - One day", "Avg Rev per Job  - Half day"]
+                    df.columns = ["Avg Rev per Job  - Seven day", "Avg Rev per Job  - One day",
+                                  "Avg Rev per Job  - Half day"]
                     dataframes.append(df)
 
             all_data = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True),
                               dataframes)
 
-            all_data.to_excel(download_dir / f"Littlefield data {dt.now().strftime('%Y%m%d_%H%M')}.xlsx",
-                              sheet_name="All Data")
+            banner_df = pd.DataFrame([banner, order_status], columns=["Value"], index=["Banner", "Order Status"])
+
+            history_df = pd.read_excel(download_dir / "transactionHistoryTable.xlsx")
+
+            with pd.ExcelWriter(download_dir / f"Littlefield data {dt.now().strftime('%Y%m%d_%H%M')}.xlsx") as writer:
+                all_data.to_excel(writer, sheet_name="All Data")
+                banner_df.to_excel(writer, sheet_name="Text Data")
+                history_df.to_excel(writer, sheet_name="Transaction History", index=False)
+
+os.remove(download_dir / "transactionHistoryTable.xlsx")
 
 for file in download_dir.glob("Plot*.xlsx"):
     os.remove(download_dir / file)

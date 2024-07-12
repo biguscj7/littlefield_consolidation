@@ -16,10 +16,12 @@ with data:
         text_data = pd.read_excel(uploaded_file, sheet_name="Text Data", index_col=0)
         transaction_data = pd.read_excel(uploaded_file, sheet_name="Transaction History")
 
-        day, balance = text_data.loc["Banner", "Value"].split("Team: teamdevils")
+        day_value = text_data.loc["Day", "Value"]
+        balance_value = text_data.loc["Balance", "Value"]
 
-        st.markdown(f"### {day} / {balance}")
-        st.markdown(f"### {text_data.loc["Order Status", "Value"]}")
+        st.markdown(f"**Day:** {day_value}")
+        st.markdown(f"**Balance:** ${balance_value}")
+        st.markdown(f"**{text_data.loc["Order Status", "Value"]}**")
 
         left_column, right_column = st.columns(2)
 

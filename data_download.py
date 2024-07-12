@@ -68,9 +68,9 @@ pw_elem.send_keys(Keys.RETURN)
 # download transaction history
 time.sleep(3)
 banner = driver.find_element(By.XPATH, '//*[@id="Ltstatus"]/font/center/div[1]').text
-driver.find_element(By.XPATH, '//*[@id="button"]/map/area[2]').click() # history
+driver.find_element(By.XPATH, '//*[@id="button"]/map/area[2]').click()  # history
 time.sleep(3)
-driver.find_element(By.XPATH, '//*[@id="historyDialog"]/div[1]/i[2]').click() # download history
+driver.find_element(By.XPATH, '//*[@id="historyDialog"]/div[1]/i[2]').click()  # download history
 time.sleep(0.5)
 
 # /html/body/p[2]/b
@@ -84,6 +84,10 @@ for url in download_urls:
     time.sleep(0.5)
 
 driver.close()
+
+full_day, full_balance = banner.split("Team: teamdevils")
+day_value = full_day.strip().split(" ")[-1]
+balance_value = full_balance.strip().split(" ")[-1]
 
 dataframes = []
 
@@ -124,11 +128,12 @@ for file_start, short_name in files_dict.items():
             all_data = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True),
                               dataframes)
 
-            banner_df = pd.DataFrame([banner, order_status], columns=["Value"], index=["Banner", "Order Status"])
+            banner_df = pd.DataFrame([day_value, balance_value, order_status], columns=["Value"],
+                                     index=["Day", "Balance", "Order Status"])
 
             history_df = pd.read_excel(download_dir / "transactionHistoryTable.xlsx")
 
-            with pd.ExcelWriter(download_dir / f"Littlefield data {dt.now().strftime('%Y%m%d_%H%M')}.xlsx") as writer:
+            with pd.ExcelWriter(download_dir / f"Littlefield data_day_{day_value}_{dt.now().strftime('%y%m%d_%H%M')}.xlsx") as writer:
                 all_data.to_excel(writer, sheet_name="All Data")
                 banner_df.to_excel(writer, sheet_name="Text Data")
                 history_df.to_excel(writer, sheet_name="Transaction History", index=False)

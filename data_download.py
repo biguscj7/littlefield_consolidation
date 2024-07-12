@@ -113,3 +113,6 @@ for file_start, short_name in files_dict.items():
 
             all_data.to_excel(download_dir / f"Littlefield data {dt.now().strftime('%Y%m%d_%H%M')}.xlsx",
                               sheet_name="All Data")
+
+for file in download_dir.glob("Plot*.xlsx"):
+    os.remove(download_dir / file)

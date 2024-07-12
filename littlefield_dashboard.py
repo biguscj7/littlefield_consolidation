@@ -62,6 +62,10 @@ with data:
                                    range_x=day_range)
         right_column.plotly_chart(waiting_kits_fig)
 
+        avg_rev_per_job_fig = px.line(all_data, x=all_data.index, y=["Avg Rev per Job  - Seven day", "Avg Rev per Job  - One day", "Avg Rev per Job  - Half day"], title="Average Revenue per Job",
+                                   range_x=day_range)
+        left_column.plotly_chart(avg_rev_per_job_fig)
+
         st.dataframe(
             all_data.loc[start_day:end_day,
             ["Daily accepted kits", "Daily Completed Jobs - Seven day", "Daily Completed Jobs - One day",

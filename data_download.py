@@ -104,6 +104,9 @@ for file_start, short_name in files_dict.items():
                 case x if "Waiting Kits" in x:
                     df.columns = [x]
                     dataframes.append(df)
+                case x if "Revenue" in x:
+                    df.columns = ["Avg Rev per Job  - Seven day", "Avg Rev per Job  - One day", "Avg Rev per Job  - Half day"]
+                    dataframes.append(df)
 
             all_data = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True),
                               dataframes)

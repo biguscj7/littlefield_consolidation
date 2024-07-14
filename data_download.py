@@ -105,9 +105,9 @@ for file_start, short_name in files_dict.items():
                 case x if "accepted" in x:
                     df.columns = [x]
                     dataframes.append(df)
-                case x if "Inventory" in x:
-                    df.columns = [x]
-                    dataframes.append(df)
+                # case x if "Inventory" in x:
+                #     df.columns = [x]
+                #     dataframes.append(df)
                 case x if "Completed" in x:
                     df.columns = [f"{x} - Seven day", f"{x} - One day", f"{x} - Half day"]
                     dataframes.append(df)
@@ -133,10 +133,13 @@ for file_start, short_name in files_dict.items():
 
             history_df = pd.read_excel(download_dir / "transactionHistoryTable.xlsx")
 
+            inventory_df = pd.read_excel(download_dir / "Plot of inventory level in kits (not an average).xlsx")
+
             with pd.ExcelWriter(download_dir / f"Littlefield data_day_{day_value}_{dt.now().strftime('%y%m%d_%H%M')}.xlsx") as writer:
                 all_data.to_excel(writer, sheet_name="All Data")
                 banner_df.to_excel(writer, sheet_name="Text Data")
                 history_df.to_excel(writer, sheet_name="Transaction History", index=False)
+                inventory_df.to_excel(writer, sheet_name="Inventory Data")
 
 os.remove(download_dir / "transactionHistoryTable.xlsx")
 

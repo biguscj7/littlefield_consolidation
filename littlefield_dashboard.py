@@ -31,15 +31,16 @@ with data:
                                             value=all_data.index[-1])
 
         day_range = [start_day, end_day]
+        inventory_range = [start_day, end_day + 0.5]
 
         accepted_kits_fig = px.line(all_data, x=all_data.index, y=["Daily accepted kits"],
                                     title="Accepted kits", range_x=day_range)
         left_column.plotly_chart(accepted_kits_fig)
-        # left_column.markdown(
-        #    f"#### Daily kits\nAverage: {all_data.mean()["Daily accepted kits"]: .2f} / Std dev: {all_data.std(ddof=0)["Daily accepted kits"]: .2f}\n")
 
-        inventory_level_fig = px.line(all_data, x=all_data.index, y=["Kit Inventory Level"],
-                                      title="Inventory Level", range_x=day_range)
+        inventory_df = pd.read_excel(uploaded_file, sheet_name="Inventory Data", index_col=0)
+
+        inventory_level_fig = px.line(inventory_df, x="day", y="data",
+                                      title="Inventory Level", range_x=inventory_range)
         right_column.plotly_chart(inventory_level_fig)
 
         queue_plot = px.line(all_data, x=all_data.index, y=["Station 1 Queue", "Station 2 Queue", "Station 3 Queue"],

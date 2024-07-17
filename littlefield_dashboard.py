@@ -8,6 +8,8 @@ st.title('Littlefield Dashboard')
 
 data, notes, background = st.tabs(["Data", "Notes", "Background"])
 
+KITS_IN_LOT = 60
+
 with data:
     uploaded_file = st.file_uploader("Upload files", type=['xlsx'])
 
@@ -16,6 +18,12 @@ with data:
         text_data = pd.read_excel(uploaded_file, sheet_name="Text Data", index_col=0)
         transaction_data = pd.read_excel(uploaded_file, sheet_name="Transaction History")
         inventory_data = pd.read_excel(uploaded_file, sheet_name="Inventory Data", index_col=0)
+
+        cumulative_flow_df = all_data[["Daily accepted kits"]]
+        cumulative_flow_df["Completed kits"] = all_data["Daily Completed Jobs - Seven day"] + all_data[
+            "Daily Completed Jobs - One day"] + all_data["Daily Completed Jobs - Half day"]
+        cumulative_flow_df["WIP"] = (all_data["Station 1 Queue"] + all_data["Station 2 Queue"] + all_data[
+            "Station 3 Queue"]) / KITS_IN_LOT
 
         day_value = text_data.loc["Day", "Value"]
         balance_value = text_data.loc["Balance", "Value"]
@@ -31,7 +39,7 @@ with data:
             day_range = [start_day, end_day]
             inventory_range = [start_day, end_day + 0.5]
 
-        KITS_IN_LOT = 60
+
 
         total_wip = (all_data.iloc[-1, 3] + all_data.iloc[-1, 4] + all_data.iloc[-1, 5]) / KITS_IN_LOT
 
@@ -100,6 +108,11 @@ with data:
                                          "Avg Rev per Job  - Half day"], title="Average Revenue per Job",
                                       range_x=day_range)
         left_column.plotly_chart(avg_rev_per_job_fig)
+
+        wip_cumulative_flow_fig = px.line(cumulative_flow_df.rolling(window=5).mean(), x=cumulative_flow_df.index,
+                                         y=["Daily accepted kits", "Completed kits", "WIP"],
+                                         title="Cumulative Flow Diagram - 5 day rolling average", range_x=day_range)
+        right_column.plotly_chart(wip_cumulative_flow_fig)
 
         right_column.markdown("**Transaction history**")
         right_column.dataframe(transaction_data, hide_index=True, use_container_width=True)

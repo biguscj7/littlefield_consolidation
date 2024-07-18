@@ -5,6 +5,7 @@ from functools import reduce
 from datetime import datetime as dt
 
 import pandas as pd
+import selenium.common
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -75,7 +76,10 @@ time.sleep(0.5)
 
 # /html/body/p[2]/b
 driver.get("https://op.responsive.net/Littlefield/MaterialMenu")
-order_status = driver.find_element(By.XPATH, '/html/body/p[2]/b').text
+try:
+    order_status = driver.find_element(By.XPATH, '/html/body/p[2]/b').text
+except selenium.common.NoSuchElementException:
+    order_status = "No order pending"
 
 for url in download_urls:
     driver.get(url)  # inventory

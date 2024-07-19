@@ -9,6 +9,7 @@ st.title('Littlefield Dashboard')
 data, notes, background = st.tabs(["Data", "Notes", "Background"])
 
 KITS_IN_LOT = 60
+ROLLING_WINDOW_DAYS = 3
 
 with data:
     uploaded_file = st.file_uploader("Upload files", type=['xlsx'])
@@ -37,9 +38,7 @@ with data:
                                                 value=all_data.index[-1])
 
             day_range = [start_day, end_day]
-            inventory_range = [start_day, end_day + 0.5]
-
-
+            inventory_range = [start_day, end_day + 0.8]
 
         total_wip = (all_data.iloc[-1, 3] + all_data.iloc[-1, 4] + all_data.iloc[-1, 5]) / KITS_IN_LOT
 
@@ -66,13 +65,26 @@ with data:
 
         left_column, right_column = st.columns(2)
 
-        accepted_kits_fig = px.line(all_data, x=all_data.index, y=["Daily accepted kits"],
-                                    title="Accepted kits", range_x=day_range)
-        left_column.plotly_chart(accepted_kits_fig)
+        wip_cumulative_flow_fig = px.line(cumulative_flow_df.rolling(window=ROLLING_WINDOW_DAYS).mean(),
+                                          x=cumulative_flow_df.index,
+                                          y=["Daily accepted kits", "Completed kits", "WIP"],
+                                          title=f"Cumulative Flow Diagram - {ROLLING_WINDOW_DAYS} day rolling average",
+                                          range_x=day_range)
+        left_column.plotly_chart(wip_cumulative_flow_fig)
+
+        lead_time_fig = px.line(all_data, x=all_data.index,
+                                y=['Daily Avg Lead Time - Seven day', 'Daily Avg Lead Time - One day',
+                                   'Daily Avg Lead Time - Half day'],
+                                title="Average Lead Time", range_x=day_range)
+        right_column.plotly_chart(lead_time_fig)
+
+        cash_on_hand_fig = px.line(all_data, x=all_data.index, y=["Cash on Hand"], title="Cash on Hand",
+                                   range_x=day_range)
+        right_column.plotly_chart(cash_on_hand_fig)
 
         inventory_level_fig = px.line(inventory_data, x="day", y="data",
                                       title="Inventory Level", range_x=inventory_range)
-        right_column.plotly_chart(inventory_level_fig)
+        left_column.plotly_chart(inventory_level_fig)
 
         queue_plot = px.line(all_data, x=all_data.index, y=["Station 1 Queue", "Station 2 Queue", "Station 3 Queue"],
                              title="Consolidated Queue Data", range_x=day_range)
@@ -89,15 +101,6 @@ with data:
                                      title="Completed Jobs", range_x=day_range)
         left_column.plotly_chart(completed_jobs_fig)
 
-        lead_time_fig = px.line(all_data, x=all_data.index,
-                                y=['Daily Avg Lead Time - Seven day', 'Daily Avg Lead Time - One day',
-                                   'Daily Avg Lead Time - Half day'],
-                                title="Average Lead Time", range_x=day_range)
-        right_column.plotly_chart(lead_time_fig)
-
-        cash_on_hand_fig = px.line(all_data, x=all_data.index, y=["Cash on Hand"], title="Cash on Hand",
-                                   range_x=day_range)
-        left_column.plotly_chart(cash_on_hand_fig)
 
         waiting_kits_fig = px.line(all_data, x=all_data.index, y=["Jobs Waiting Kits"], title="Jobs Waiting Kits",
                                    range_x=day_range)
@@ -109,10 +112,10 @@ with data:
                                       range_x=day_range)
         left_column.plotly_chart(avg_rev_per_job_fig)
 
-        wip_cumulative_flow_fig = px.line(cumulative_flow_df.rolling(window=5).mean(), x=cumulative_flow_df.index,
-                                         y=["Daily accepted kits", "Completed kits", "WIP"],
-                                         title="Cumulative Flow Diagram - 5 day rolling average", range_x=day_range)
-        right_column.plotly_chart(wip_cumulative_flow_fig)
+        accepted_kits_fig = px.line(all_data, x=all_data.index, y=["Daily accepted kits"],
+                                    title="Accepted kits", range_x=day_range)
+        right_column.plotly_chart(accepted_kits_fig)
+
 
         right_column.markdown("**Transaction history**")
         right_column.dataframe(transaction_data, hide_index=True, use_container_width=True)

@@ -55,9 +55,9 @@ with data:
             left_middle_column.markdown(f"**Inventory level:** {inventory_data.iloc[-1, 1] / 60:.0f}")
             left_middle_column.markdown(f"**Total WIP:** {total_wip:.0f}")
             right_middle_column.markdown(
-                f"**{trailing_window} day mean inbound jobs:** {all_data[-trailing_window:]['Daily accepted kits'].mean():.1f}")
+                f"**{trailing_window} day mean inbound jobs:** {cumulative_flow_df[-trailing_window:]['Daily accepted kits'].mean():.1f}")
             right_middle_column.markdown(
-                f"**{trailing_window} day mean completed jobs:** {all_data[-trailing_window:]['Daily Completed Jobs - Seven day'].mean():.1f}")
+                f"**{trailing_window} day mean completed jobs:** {cumulative_flow_df[-trailing_window:]['Completed kits'].mean():.1f}")
 
             right_column.markdown(f"**{text_data.loc["Order Status", "Value"]}**")
 

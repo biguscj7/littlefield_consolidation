@@ -40,6 +40,9 @@ with data:
             day_range = [start_day, end_day]
             inventory_range = [start_day, end_day + 0.8]
 
+            rolling_window = left_column.number_input("Rolling window (days)", min_value=1, max_value=30, value=3)
+            trailing_window = right_column.number_input("Trailing window (days)", min_value=1, max_value=30, value=14)
+
         total_wip = (all_data.iloc[-1, 3] + all_data.iloc[-1, 4] + all_data.iloc[-1, 5]) / KITS_IN_LOT
 
         st.divider()
@@ -52,9 +55,9 @@ with data:
             left_middle_column.markdown(f"**Inventory level:** {inventory_data.iloc[-1, 1] / 60:.0f}")
             left_middle_column.markdown(f"**Total WIP:** {total_wip:.0f}")
             right_middle_column.markdown(
-                f"**Last 24 days mean inbound jobs:** {all_data[-24:]['Daily accepted kits'].mean():.1f}")
+                f"**{trailing_window} day mean inbound jobs:** {all_data[-trailing_window:]['Daily accepted kits'].mean():.1f}")
             right_middle_column.markdown(
-                f"**Last 24 days mean completed jobs:** {all_data[-24:]['Daily Completed Jobs - Seven day'].mean():.1f}")
+                f"**{trailing_window} day mean completed jobs:** {all_data[-trailing_window:]['Daily Completed Jobs - Seven day'].mean():.1f}")
 
             right_column.markdown(f"**{text_data.loc["Order Status", "Value"]}**")
 
@@ -65,10 +68,10 @@ with data:
 
         left_column, right_column = st.columns(2)
 
-        wip_cumulative_flow_fig = px.line(cumulative_flow_df.rolling(window=ROLLING_WINDOW_DAYS).mean(),
+        wip_cumulative_flow_fig = px.line(cumulative_flow_df.rolling(window=rolling_window).mean(),
                                           x=cumulative_flow_df.index,
                                           y=["Daily accepted kits", "Completed kits", "WIP"],
-                                          title=f"Cumulative Flow Diagram - {ROLLING_WINDOW_DAYS} day rolling average",
+                                          title=f"Cumulative Flow Diagram - {rolling_window} day rolling average",
                                           range_x=day_range)
         left_column.plotly_chart(wip_cumulative_flow_fig)
 
@@ -101,7 +104,6 @@ with data:
                                      title="Completed Jobs", range_x=day_range)
         left_column.plotly_chart(completed_jobs_fig)
 
-
         waiting_kits_fig = px.line(all_data, x=all_data.index, y=["Jobs Waiting Kits"], title="Jobs Waiting Kits",
                                    range_x=day_range)
         right_column.plotly_chart(waiting_kits_fig)
@@ -116,6 +118,10 @@ with data:
                                     title="Accepted kits", range_x=day_range)
         right_column.plotly_chart(accepted_kits_fig)
 
+        utilization_smoothed = px.line(all_data.rolling(window=rolling_window).mean(), x=all_data.index,
+                                       y=['Station 1 Utilization', 'Station 2 Utilization', 'Station 3 Utilization'],
+                                       title=f"Utilization - {rolling_window} day rolling average", range_x=day_range)
+        left_column.plotly_chart(utilization_smoothed)
 
         right_column.markdown("**Transaction history**")
         right_column.dataframe(transaction_data, hide_index=True, use_container_width=True)

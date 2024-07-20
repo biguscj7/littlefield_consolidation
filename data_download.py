@@ -109,9 +109,6 @@ for file_start, short_name in files_dict.items():
                 case x if "accepted" in x:
                     df.columns = [x]
                     dataframes.append(df)
-                # case x if "Inventory" in x:
-                #     df.columns = [x]
-                #     dataframes.append(df)
                 case x if "Completed" in x:
                     df.columns = [f"{x} - Seven day", f"{x} - One day", f"{x} - Half day"]
                     dataframes.append(df)

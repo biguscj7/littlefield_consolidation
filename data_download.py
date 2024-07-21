@@ -39,7 +39,7 @@ files_dict = {
     'Plot of daily average number of kits queued for station 1': 'Station 1 Queue',
     'Plot of daily average number of kits queued for station 2': 'Station 2 Queue',
     'Plot of daily average number of kits queued for station 3': 'Station 3 Queue',
-    'Plot of number of jobs accepted each day': 'Daily accepted kits',
+    'Plot of number of jobs accepted each day': 'Daily accepted jobs',
     'Plot of daily average number of jobs waiting for kits': 'Jobs Waiting Kits',
     'Plot of inventory level in kits (not an average)': 'Kit Inventory Level',
     'Plot of daily average revenue per job': 'Avg Revenue per Job',

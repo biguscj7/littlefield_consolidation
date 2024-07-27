@@ -33,7 +33,7 @@ with (data):
             left_column, right_column = st.columns(2)
 
             start_day = left_column.number_input("Start day", min_value=all_data.index[0], max_value=all_data.index[-1],
-                                                 value=all_data.index[0])
+                                                 value=(all_data.index[-1]) - 30)
             end_day = right_column.number_input("End day", min_value=all_data.index[0], max_value=all_data.index[-1],
                                                 value=all_data.index[-1])
 
@@ -52,8 +52,8 @@ with (data):
 
             left_column.markdown(f"**Day:** {day_value}")
             left_column.markdown(f"**Balance:** ${balance_value}")
-            left_middle_column.markdown(f"**Inventory level:** {inventory_data.iloc[-1, 1] / 60:.0f}")
-            left_middle_column.markdown(f"**Total WIP:** {total_wip:.0f}")
+            left_middle_column.markdown(f"**Inventory level:** {inventory_data.iloc[-1, 1] / 60:.2f}")
+            left_middle_column.markdown(f"**Total WIP:** {total_wip:.2f}")
             right_middle_column.markdown(
                 f"**{trailing_window} day mean inbound jobs:** {cumulative_flow_df[-trailing_window:]['Daily accepted jobs'].mean():.1f}")
             right_middle_column.markdown(

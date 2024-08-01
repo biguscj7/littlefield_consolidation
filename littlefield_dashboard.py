@@ -24,8 +24,8 @@ with (data):
         cumulative_flow_df.loc[:, "Completed jobs"] = all_data["Daily Completed Jobs - Seven day"] + all_data[
             "Daily Completed Jobs - One day"] + all_data["Daily Completed Jobs - Half day"]
         cumulative_flow_df.loc[:, "WIP (jobs)"] = (
-                    (all_data["Station 1 Queue"] + all_data["Station 2 Queue"] + all_data[
-                        "Station 3 Queue"]) / KITS_IN_LOT)
+                (all_data["Station 1 Queue"] + all_data["Station 2 Queue"] + all_data[
+                    "Station 3 Queue"]) / KITS_IN_LOT)
 
         day_value = text_data.loc["Day", "Value"]
         balance_value = text_data.loc["Balance", "Value"]
@@ -152,9 +152,10 @@ with (data):
 
         right_column.markdown("**Transaction history**")
         filter_text = right_column.text_input("Filter by parameter")
-        if filter_text:
-            transaction_data = transaction_data[transaction_data["Parameter"].str.contains(filter_text, case=False)]
-        right_column.dataframe(transaction_data, hide_index=True, use_container_width=True)
+        transaction_data_filtered = transaction_data[(
+            (transaction_data.Day <= day_range[1]) & (transaction_data.Day >= day_range[0]) & (
+                transaction_data["Parameter"].str.contains(filter_text, case=False)))]
+        right_column.dataframe(transaction_data_filtered, hide_index=True, use_container_width=True)
 
         left_column.markdown("**Stats**")
         left_column.dataframe(

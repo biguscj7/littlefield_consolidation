@@ -23,8 +23,9 @@ with (data):
         cumulative_flow_df = all_data.loc[:, ["Daily accepted jobs"]]
         cumulative_flow_df.loc[:, "Completed jobs"] = all_data["Daily Completed Jobs - Seven day"] + all_data[
             "Daily Completed Jobs - One day"] + all_data["Daily Completed Jobs - Half day"]
-        cumulative_flow_df.loc[:, "WIP (jobs)"] = ((all_data["Station 1 Queue"] + all_data["Station 2 Queue"] + all_data[
-            "Station 3 Queue"]) / KITS_IN_LOT)
+        cumulative_flow_df.loc[:, "WIP (jobs)"] = (
+                    (all_data["Station 1 Queue"] + all_data["Station 2 Queue"] + all_data[
+                        "Station 3 Queue"]) / KITS_IN_LOT)
 
         day_value = text_data.loc["Day", "Value"]
         balance_value = text_data.loc["Balance", "Value"]
@@ -74,6 +75,8 @@ with (data):
                                           title=f"Cumulative Flow Diagram - {rolling_window} day rolling average",
                                           range_x=day_range,
                                           color_discrete_sequence=px.colors.qualitative.Alphabet)
+        wip_cumulative_flow_fig.update_yaxes(title_text="Jobs")
+        wip_cumulative_flow_fig.update_xaxes(title_text="Day")
         left_column.plotly_chart(wip_cumulative_flow_fig)
 
         lead_time_fig = px.line(all_data, x=all_data.index,
@@ -81,27 +84,39 @@ with (data):
                                    'Daily Avg Lead Time - Half day'],
                                 title="Average Lead Time", range_x=day_range,
                                 color_discrete_sequence=px.colors.qualitative.Dark24)
+        lead_time_fig.update_yaxes(title_text="Days")
+        lead_time_fig.update_xaxes(title_text="Day")
         right_column.plotly_chart(lead_time_fig)
 
         inventory_level_fig = px.line(inventory_data, x="day", y="data",
                                       title="Inventory Level (kits)", range_x=inventory_range)
+        inventory_level_fig.update_yaxes(title_text="Kits")
+        inventory_level_fig.update_xaxes(title_text="Day")
         left_column.plotly_chart(inventory_level_fig)
 
         cash_on_hand_fig = px.line(all_data, x=all_data.index, y=["Cash on Hand"], title="Cash on Hand",
                                    range_x=day_range)
+        cash_on_hand_fig.update_yaxes(title_text="Dollars")
+        cash_on_hand_fig.update_xaxes(title_text="Day")
         right_column.plotly_chart(cash_on_hand_fig)
 
         queue_plot = px.line(all_data, x=all_data.index, y=["Station 1 Queue", "Station 2 Queue", "Station 3 Queue"],
                              title="Consolidated Queue Data (kits)", range_x=day_range)
+        queue_plot.update_yaxes(title_text="Kits")
+        queue_plot.update_xaxes(title_text="Day")
         left_column.plotly_chart(queue_plot)
 
         utilization_plot = px.line(all_data, x=all_data.index,
                                    y=['Station 1 Utilization', 'Station 2 Utilization', 'Station 3 Utilization'],
                                    title="Consolidated Utilization", range_x=day_range)
+        utilization_plot.update_yaxes(title_text="Utilization index")
+        utilization_plot.update_xaxes(title_text="Day")
         right_column.plotly_chart(utilization_plot)
 
         accepted_kits_fig = px.line(all_data, x=all_data.index, y=["Daily accepted jobs"],
                                     title="Accepted jobs", range_x=day_range)
+        accepted_kits_fig.update_yaxes(title_text="Jobs")
+        accepted_kits_fig.update_xaxes(title_text="Day")
         left_column.plotly_chart(accepted_kits_fig)
 
         completed_jobs_fig = px.line(all_data, x=all_data.index,
@@ -110,21 +125,29 @@ with (data):
                                      title="Completed Jobs", range_x=day_range,
                                      color_discrete_sequence=px.colors.qualitative.Dark24
                                      )
+        completed_jobs_fig.update_yaxes(title_text="Jobs")
+        completed_jobs_fig.update_xaxes(title_text="Day")
         right_column.plotly_chart(completed_jobs_fig)
 
         utilization_smoothed = px.line(all_data.rolling(window=rolling_window).mean(), x=all_data.index,
                                        y=['Station 1 Utilization', 'Station 2 Utilization', 'Station 3 Utilization'],
                                        title=f"Utilization - {rolling_window} day rolling average", range_x=day_range)
+        utilization_smoothed.update_yaxes(title_text="Utilization index")
+        utilization_smoothed.update_xaxes(title_text="Day")
         left_column.plotly_chart(utilization_smoothed)
 
         avg_rev_per_job_fig = px.line(all_data, x=all_data.index,
                                       y=["Avg Rev per Job  - Seven day", "Avg Rev per Job  - One day",
                                          "Avg Rev per Job  - Half day"], title="Average Revenue per Job",
                                       range_x=day_range, color_discrete_sequence=px.colors.qualitative.Dark24)
+        avg_rev_per_job_fig.update_yaxes(title_text="Dollars")
+        avg_rev_per_job_fig.update_xaxes(title_text="Day")
         right_column.plotly_chart(avg_rev_per_job_fig)
 
         waiting_kits_fig = px.line(all_data, x=all_data.index, y=["Jobs Waiting Kits"], title="Jobs Waiting Kits",
                                    range_x=day_range)
+        waiting_kits_fig.update_yaxes(title_text="Jobs")
+        waiting_kits_fig.update_xaxes(title_text="Day")
         left_column.plotly_chart(waiting_kits_fig)
 
         right_column.markdown("**Transaction history**")

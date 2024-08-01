@@ -10,6 +10,7 @@ import selenium.common
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
 
 from dotenv import load_dotenv
 
@@ -67,7 +68,7 @@ pw_elem.send_keys(os.getenv("LITTLEFIELD_PASSWORD"))
 pw_elem.send_keys(Keys.RETURN)
 
 # download transaction history
-time.sleep(3)
+time.sleep(5)
 banner = driver.find_element(By.XPATH, '//*[@id="Ltstatus"]/font/center/div[1]').text
 driver.find_element(By.XPATH, '//*[@id="button"]/map/area[2]').click()  # history
 time.sleep(3)

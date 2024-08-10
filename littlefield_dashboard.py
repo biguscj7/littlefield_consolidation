@@ -24,8 +24,7 @@ def update_fig_layout(fig):
 
 
 with (data):
-
-    #uploaded_file = st.file_uploader("Upload files", type=['xlsx'])
+    # uploaded_file = st.file_uploader("Upload files", type=['xlsx'])
     uploaded_file = open("./Littlefield data_day_486_240729_0607.xlsx", "rb")
 
     if uploaded_file:
@@ -75,6 +74,9 @@ with (data):
                 f"**{trailing_window} day mean completed jobs:** {cumulative_flow_df[-trailing_window:]['Completed jobs'].mean():.1f}")
 
             right_column.markdown(f"**{text_data.loc["Order Status", "Value"]}**")
+            st.markdown(
+                '<div style="text-align: center"><i> Above data is referenced to last day of simulator data (regardless of Start Day/End Day) </i></div>',
+                unsafe_allow_html=True)
 
         if all_data[-1:]["Jobs Waiting Kits"].values > 0:
             st.markdown(f":red[**Jobs waiting kits:** {all_data[-1:]['Jobs Waiting Kits'].values[0]}]")

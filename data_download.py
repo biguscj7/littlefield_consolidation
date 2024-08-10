@@ -50,7 +50,7 @@ FILES_DICT = {
 }
 
 LOGINS = [
-    {"username": "teamdevils", "password": "devils78"},
+    {"username": "teamconsultants", "password": "consultants43"},
 ]
 
 

@@ -23,7 +23,7 @@ def update_fig_layout(fig):
     # fig.update_traces(line_width=5)
     return fig
 
-TEAMS = ["teamdevils"]
+TEAMS = ["teamdevils", "teamconsultants"]
 
 with (data):
     team_name = st.selectbox("Team", TEAMS)

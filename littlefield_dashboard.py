@@ -1,3 +1,5 @@
+import os
+
 import streamlit as st
 import pandas as pd
 from plotly import express as px
@@ -12,7 +14,6 @@ data, notes, background = st.tabs(["Data", "Notes", "Background"])
 KITS_IN_LOT = 60
 ROLLING_WINDOW_DAYS = 3
 
-
 def update_fig_layout(fig):
     # fig.update_layout(title_font_size=48, xaxis_title_font_size=36, xaxis_tickfont_size=32,
     #                   yaxis_title_font_size=36, yaxis_tickfont_size=32, legend_font_size=32,
@@ -22,10 +23,15 @@ def update_fig_layout(fig):
     # fig.update_traces(line_width=5)
     return fig
 
+TEAMS = ["teamdevils"]
 
 with (data):
-    # uploaded_file = st.file_uploader("Upload files", type=['xlsx'])
-    uploaded_file = open("./Littlefield data_day_486_240729_0607.xlsx", "rb")
+    team_name = st.selectbox("Team", TEAMS)
+
+    for file in os.listdir("./data"):
+        if team_name in file:
+            uploaded_file = open(f"./data/{file}", "rb")
+            break
 
     if uploaded_file:
         all_data = pd.read_excel(uploaded_file, index_col=0)

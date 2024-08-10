@@ -52,10 +52,10 @@ with (data):
         with st.container():
             left_column, right_column = st.columns(2)
 
-            start_day = left_column.number_input("Start day", min_value=all_data.index[0], max_value=all_data.index[-1],
-                                                 value=(all_data.index[-1]) - 30)
-            end_day = right_column.number_input("End day", min_value=all_data.index[0], max_value=all_data.index[-1],
-                                                value=all_data.index[-1])
+            start_day = left_column.number_input("Start day", min_value=all_data.index[0], max_value=485,
+                                                 value=1)
+            end_day = right_column.number_input("End day", min_value=all_data.index[0], max_value=486,
+                                                value=486)
 
             day_range = [start_day, end_day]
             inventory_range = [start_day, end_day + 0.8]
